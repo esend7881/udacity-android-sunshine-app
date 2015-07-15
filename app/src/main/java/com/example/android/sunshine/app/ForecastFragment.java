@@ -102,23 +102,22 @@ public class ForecastFragment extends Fragment {
     }
 
     private void setForecaseAdapter(String[] data) {
-        List<String> weekForecast = new ArrayList<>(Arrays.asList(data));
 
         // Now that we have some dummy forecast data, create an ArrayAdapter.
         // The ArrayAdapter will take data from a source (like our dummy forecast) and
         // use it to populate the ListView it's attached to.
-        if (mForecastAdapter == null)
+        if (mForecastAdapter == null) {
+            List<String> weekForecast = new ArrayList<>(Arrays.asList(data));
             mForecastAdapter =
                     new ArrayAdapter<>(
                             getActivity(), // The current context (this activity)
                             R.layout.list_item_forecast, // The name of the layout ID.
                             R.id.list_item_forecast_textview, // The ID of the textview to populate.
                             weekForecast);
-        else {
+        } else {
             mForecastAdapter.clear();
-            for (String s : weekForecast)
-                mForecastAdapter.insert(s, mForecastAdapter.getCount());
-            mForecastAdapter.notifyDataSetChanged();
+            mForecastAdapter.addAll(data);
+            // mForecastAdapter.notifyDataSetChanged();
         }
 
         Log.v(LOG_TAG, "Just updated mForecastAdapter");
