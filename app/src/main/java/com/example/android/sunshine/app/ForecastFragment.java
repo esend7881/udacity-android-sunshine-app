@@ -16,6 +16,7 @@
 package com.example.android.sunshine.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -115,12 +116,13 @@ public class ForecastFragment extends Fragment {
         // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String toast = mForecastAdapter.getItem(i).toString();
-                Toast.makeText(getActivity(), toast, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getActivity(), toast, Toast.LENGTH_SHORT).show();
+                Intent detailed = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, toast);
+                startActivity(detailed);
             }
         });
 
