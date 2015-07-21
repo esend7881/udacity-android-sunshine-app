@@ -7,6 +7,16 @@
          or something similar.
     -->
     <string name="app_name">Sunshine</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Label for the location preference [CHAR LIMIT=30] -->
+    <string name="pref_location_label">Location</string>
+
+    <!-- Key name for storing location in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_location_key" translatable="false">location</string>
+
+    <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
+    <string name="pref_location_default" translatable="false">94043</string>
 
     <!--
          By convention, "action" denotes that this String will be used as the label for an Action,
@@ -18,5 +28,10 @@
     <string name="action_refresh" translatable="false">Refresh</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="pref_temperature_units">Temperature Units</string>
+    <string name="pref_temperature_key">pref_temperature_key</string>
+    <string name="pref_metric">Metric</string>
+    <string name="pref_imperial">Imperial</string>
+    <string name="pref_temperature_default">@string/pref_metric</string>
 
 </resources>

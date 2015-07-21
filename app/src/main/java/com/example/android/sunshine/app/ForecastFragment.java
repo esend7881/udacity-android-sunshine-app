@@ -18,8 +18,10 @@ package com.example.android.sunshine.app;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -39,15 +41,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
@@ -77,12 +83,21 @@ public class ForecastFragment extends Fragment {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("94043");
-            return true;
+        switch (id) {
+            case R.id.action_refresh:
+                updateWeather();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather() {
+        String zip = PreferenceManager
+                .getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default));
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        weatherTask.execute(zip);
     }
 
     @Override
@@ -90,15 +105,7 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // Create some dummy data for the ListView.  Here's a sample weekly forecast
-        String[] data = {
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7"
-        };
+        String[] data = { };
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
 
         // Now that we have some dummy forecast data, create an ArrayAdapter.
@@ -127,6 +134,12 @@ public class ForecastFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -244,7 +257,7 @@ public class ForecastFragment extends Fragment {
             String forecastJsonStr = null;
 
             String format = "json";
-            String units = "metric";
+            String units = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_temperature_key), getString(R.string.pref_temperature_default));
             int numDays = 7;
 
             try {
@@ -261,22 +274,31 @@ public class ForecastFragment extends Fragment {
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                         .appendQueryParameter(QUERY_PARAM, params[0])
                         .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(UNITS_PARAM, units)
+                        .appendQueryParameter(UNITS_PARAM, units.toLowerCase())
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
                         .build();
 
                 URL url = new URL(builtUri.toString());
 
-                // Create the request to OpenWeatherMap, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
                 // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
+                InputStream inputStream = null;
+                for (int retry = 1; retry <= 10; retry++) try {
+                    // Create the request to OpenWeatherMap, and open the connection
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+                    inputStream = urlConnection.getInputStream();
+                    break;
+                } catch (ProtocolException | FileNotFoundException e) {
+                    try {
+                        Thread.sleep(1L);
+                        Log.e(LOG_TAG, String.format("%s%nRetry #%d%nError Message:%n%s -- %s%n",
+                                url, retry, e.getClass().getSimpleName(), e.getMessage()));
+                    } catch (InterruptedException x) {}
+                }
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
-                    // Nothing to do.
+                    Log.e(LOG_TAG, "inputstream null!");
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
