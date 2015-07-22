@@ -11,9 +11,9 @@
         android:title="@string/pref_location_label" />
 
     <ListPreference
-        android:entries="@array/temperatures"
-        android:entryValues="@array/temperatureValues"
-        android:defaultValue="@string/pref_metric"
+        android:entries="@array/prev_units_options"
+        android:entryValues="@array/pref_unit_values"
+        android:defaultValue="@string/pref_units_label_metric"
         android:key="@string/pref_temperature_key"
         android:title="@string/pref_temperature_units"
         android:dialogTitle="@string/pref_temperature_units" />

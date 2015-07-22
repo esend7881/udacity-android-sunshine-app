@@ -200,6 +200,8 @@ public class ForecastFragment extends Fragment {
             Time dayTime = new Time();
             dayTime.setToNow();
 
+            String units = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_temperature_key), getString(R.string.pref_temperature_default));
+
             // we start at the day returned by local time. Otherwise this is a mess.
             int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
 
@@ -257,7 +259,7 @@ public class ForecastFragment extends Fragment {
             String forecastJsonStr = null;
 
             String format = "json";
-            String units = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_temperature_key), getString(R.string.pref_temperature_default));
+            String units = "metric";
             int numDays = 7;
 
             try {
