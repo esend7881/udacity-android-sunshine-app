@@ -17,6 +17,7 @@ package com.example.android.sunshine.app;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -51,11 +52,32 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.view_location:
+                viewLocation();
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    private void viewLocation() {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        final String FORECAST_BASE_URL =
+                "geo:0,0?";
+        final String QUERY_PARAM = "q";
+        String zip = PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getString(getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default));
+        Uri geoLocation = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                .appendQueryParameter(QUERY_PARAM, zip)
+                .build();
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 }
