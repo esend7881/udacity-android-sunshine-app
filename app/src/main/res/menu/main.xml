@@ -11,11 +11,4 @@
         android:id="@+id/view_location"
         android:title="@string/view_location"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_item_share"
-        app:showAsAction="ifRoom"
-        android:title="@string/share"
-        android:actionProviderClass=
-            "android.support.v7.widget.ShareActionProvider" />
-
 </menu>

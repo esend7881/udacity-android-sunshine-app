@@ -61,7 +61,6 @@ import java.util.List;
 public class ForecastFragment extends Fragment {
 
     private ArrayAdapter<String> mForecastAdapter;
-    private ShareActionProvider mShareActionProvider;
 
     public ForecastFragment() {
     }
@@ -76,8 +75,6 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecastfragment, menu);
-
-        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menu.findItem(R.id.menu_item_share));
     }
 
     @Override
@@ -90,40 +87,8 @@ public class ForecastFragment extends Fragment {
             case R.id.action_refresh:
                 updateWeather();
                 return true;
-            case R.id.menu_item_share:
-                shareWeather(item);
-                return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void shareWeather(MenuItem item) {
-        if (mForecastAdapter.isEmpty()) {
-            Toast t = Toast.makeText(getActivity().getApplicationContext(),
-                    String.format("Nothing to share!%nTry a refresh."),
-                    Toast.LENGTH_SHORT);
-            TextView v = (TextView) t.getView().findViewById(android.R.id.message);
-            if (v != null) v.setGravity(Gravity.CENTER);
-            t.show();
-        } else {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.putExtra(Intent.EXTRA_TEXT,
-                    String.format("%s #%sApp",
-                            mForecastAdapter.getItem(0),
-                            getString(R.string.app_name)));
-
-            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                mShareActionProvider.setShareIntent(intent);
-                startActivity(intent);
-            } else {
-                Toast t = Toast.makeText(getActivity().getApplicationContext(),
-                        String.format("No app to share this with!"),
-                        Toast.LENGTH_SHORT);
-                TextView v = (TextView) t.getView().findViewById(android.R.id.message);
-                if (v != null) v.setGravity(Gravity.CENTER);
-                t.show();
-            }
-        }
     }
 
     private void updateWeather() {
